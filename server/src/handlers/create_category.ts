@@ -1,14 +1,22 @@
+import { db } from '../db';
+import { categoriesTable } from '../db/schema';
 import { type CreateCategoryInput, type Category } from '../schema';
 
-export async function createCategory(input: CreateCategoryInput): Promise<Category> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is to create a new product category with validation
-  // and admin authorization checks.
-  return Promise.resolve({
-    id: 0,
-    name: input.name,
-    description: input.description,
-    created_at: new Date(),
-    updated_at: null
-  } as Category);
-}
+export const createCategory = async (input: CreateCategoryInput): Promise<Category> => {
+  try {
+    // Insert category record
+    const result = await db.insert(categoriesTable)
+      .values({
+        name: input.name,
+        description: input.description
+      })
+      .returning()
+      .execute();
+
+    const category = result[0];
+    return category;
+  } catch (error) {
+    console.error('Category creation failed:', error);
+    throw error;
+  }
+};
